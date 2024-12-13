@@ -127,11 +127,11 @@ let
 
   prompt-declaration-language = pkgs.python3Packages.buildPythonPackage rec {
     pname = "prompt_declaration_language";
-    version = "0.0.8";
+    version = "0.1.0";
     pyproject = true;
     src = pkgs.python3Packages.fetchPypi {
       inherit pname version;
-      sha256 = "sha256-xgh407gJgemktDlnDW7ViuV9IxPc7P5Ri/vdtKvXAqU=";
+      sha256 = "sha256-1AHn2ApkSSHCWVsCSWz4/JyoI7u+dYgsymD3a48zaos=";
     };
 
     propagatedBuildInputs = [
@@ -154,7 +154,7 @@ let
 
     postPatch = ''
       substituteInPlace pyproject.toml \
-        --replace "litellm~=1.49" "litellm>=1.47.0"
+        --replace "litellm>=1.49,<1.51" "litellm>=1.47.0"
     '';
     doCheck = true;
   };
