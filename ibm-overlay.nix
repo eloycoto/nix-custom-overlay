@@ -151,10 +151,9 @@ let
       pkgs.python3Packages.setuptools
       pkgs.python3Packages.setuptools-scm
     ];
-
     postPatch = ''
       substituteInPlace pyproject.toml \
-        --replace "litellm>=1.49,<1.51" "litellm>=1.47.0"
+        --replace "litellm>=1.49,<1.51" "litellm>=1.51"
     '';
     doCheck = true;
   };
