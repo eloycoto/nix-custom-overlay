@@ -79,13 +79,13 @@ let
       sha256 = "sha256-q3ntXe3Vf9V0xcbFzspQqJuEI1YmRiVckQ7XSo2IEaU=";
     };
 
-    propagatedBuildInputs = [
-      pkgs.python3Packages.pandas
-      pkgs.python3Packages.httpx
-      pkgs.python3Packages.tabulate
-      pkgs.python3Packages.langchain
-      pkgs.python3Packages.importlib-metadata
-      pkgs.python3Packages.lomond
+    propagatedBuildInputs = with pkgs.python3Packages; [
+      pandas
+      httpx
+      tabulate
+      langchain
+      importlib-metadata
+      lomond
       ibm-cos-sdk
     ];
 
@@ -109,12 +109,12 @@ let
       sha256 = "sha256-DYYpc3Glu3xB0UOox3DgaPN0ibXKiOa9VtymGk9twag=";
     };
 
-    propagatedBuildInputs = [
-      pkgs.python3Packages.pydantic
-      pkgs.python3Packages.httpx
-      pkgs.python3Packages.httpx-sse
-      pkgs.python3Packages.deprecated
-      pkgs.python3Packages.aiolimiter
+    propagatedBuildInputs = with pkgs.python3Packages; [
+      pydantic
+      httpx
+      httpx-sse
+      deprecated
+      aiolimiter
     ];
 
     buildInputs = [
@@ -122,44 +122,106 @@ let
       pkgs.python3Packages.poetry-core
     ];
 
+  postPatch = ''
+    substituteInPlace pyproject.toml \
+      --replace 'httpx = "^0.27.0"' 'httpx = ">0.27.0"'
+  '';
+
     doCheck = true;
   };
 
-  prompt-declaration-language = pkgs.python3Packages.buildPythonPackage rec {
-    pname = "prompt_declaration_language";
-    version = "0.1.0";
-    pyproject = true;
+  alchemy-config = pkgs.python3Packages.buildPythonPackage rec {
+    pname = "alchemy-config";
+    version = "1.1.3";
+    format = "setuptools";
     src = pkgs.python3Packages.fetchPypi {
       inherit pname version;
-      sha256 = "sha256-1AHn2ApkSSHCWVsCSWz4/JyoI7u+dYgsymD3a48zaos=";
+      sha256 = "sha256-Umrrd80MJ8exEv+2flrxNcQU4y37tKpt/0W1yiSOJW0=";
+    };
+
+    preBuild = ''
+      echo "PyYAML>=5.3.1" > requirements.txt
+    '';
+
+    env = {
+      RELEASE_VERSION = version;
     };
 
     propagatedBuildInputs = [
-      pkgs.python3Packages.ipython
-      pkgs.python3Packages.jsonschema
-      pkgs.python3Packages.pydantic
-      pkgs.python3Packages.requests
-      pkgs.python3Packages.jinja2
       pkgs.python3Packages.pyyaml
-      pkgs.python3Packages.termcolor
-      pkgs.python3Packages.python-dotenv
-      pkgs.python3Packages.litellm
-      ibm-generative-ai
     ];
 
     buildInputs = [
       pkgs.python3Packages.setuptools
       pkgs.python3Packages.setuptools-scm
     ];
+
+    doCheck = true;
+  };
+
+  granite-io = pkgs.python3Packages.buildPythonPackage rec {
+    pname = "granite_io";
+    version = "0.2.1";
+    pyproject = true;
+    src = pkgs.python3Packages.fetchPypi {
+      inherit pname version;
+      sha256 = "sha256-NZ7AklQdGE7VlZn5O8XGh8mhjFSJLIgU/RFk1x91NrI=";
+    };
+
+    propagatedBuildInputs = with pkgs.python3Packages; [
+      pydantic
+      jsonschema
+      nltk
+      alchemy-config
+    ];
+
+    buildInputs = with pkgs.python3Packages; [
+      poetry-dynamic-versioning
+      poetry-core
+      setuptools
+      setuptools-scm
+    ];
+
+    doCheck = true;
+  };
+
+  prompt-declaration-language = pkgs.python3Packages.buildPythonPackage rec {
+    pname = "prompt_declaration_language";
+    version = "0.5.0";
+    pyproject = true;
+    src = pkgs.python3Packages.fetchPypi {
+      inherit pname version;
+      sha256 = "sha256-OwN+B2Ow3Yb5tuzfYGtothbi802q5KG0W/NisX9X4u4=";
+    };
+
+    propagatedBuildInputs = with pkgs.python3Packages; [
+      ipython
+      jsonschema
+      pydantic
+      requests
+      jinja2
+      pyyaml
+      termcolor
+      python-dotenv
+      litellm
+      json-repair
+      ibm-generative-ai
+      granite-io
+    ];
+
+    buildInputs = with pkgs.python3Packages; [
+      setuptools
+      setuptools-scm
+    ];
     postPatch = ''
       substituteInPlace pyproject.toml \
-        --replace "litellm>=1.49,<1.51" "litellm>=1.51"
+        --replace "litellm!=1.59.9,>=1.57.3" "litellm>=1.52.16"
     '';
     doCheck = true;
   };
 in
 {
   python3Packages = prev.python3Packages // {
-    inherit ibm-cos-sdk-core ibm-cos-sdk ibm-watson-ai prompt-declaration-language ibm-generative-ai;
+    inherit ibm-cos-sdk-core ibm-cos-sdk ibm-watson-ai prompt-declaration-language ibm-generative-ai alchemy-config;
   };
 }
