@@ -4,12 +4,12 @@ let
 
   files-to-prompt = pkgs.python3Packages.buildPythonPackage rec {
     pname = "files-to-prompt";
-    version = "0.4";
+    version = "0.6";
     pyproject = true;
     src = pkgs.python3Packages.fetchPypi {
       pname = "files_to_prompt";
       inherit version;
-      sha256 = "sha256-qhxlvbf6Ejo6NsXxBa80qo8/cElfyQ3LX3+plf2jRj0=";
+      sha256 = "sha256-mvV+7L2ynTzOA0wYZJP/xsEgXqT1q95vsyzLHZbq5Aw=";
     };
 
     buildInputs = with pkgs.python3Packages; [
